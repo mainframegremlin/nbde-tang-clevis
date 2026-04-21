@@ -1,0 +1,20 @@
+#!/bin/sh
+# initramfs hook — bundles WiFi tooling into the initramfs image.
+# Install to: /etc/initramfs-tools/hooks/wifi  (chmod +x)
+# Run: update-initramfs -u -k all
+
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in prereqs) prereqs; exit 0;; esac
+
+. /usr/share/initramfs-tools/hook-functions
+
+copy_exec /sbin/wpa_supplicant
+copy_exec /sbin/wpa_cli
+copy_exec /sbin/dhclient
+
+mkdir -p "${DESTDIR}/etc/initramfs-tools"
+cp /etc/initramfs-tools/wpa_supplicant.conf "${DESTDIR}/etc/initramfs-tools/"
+
+cp /lib/firmware/iwlwifi-*.ucode "${DESTDIR}/lib/firmware/" 2>/dev/null || true
+cp /lib/firmware/regulatory.db   "${DESTDIR}/lib/firmware/" 2>/dev/null || true

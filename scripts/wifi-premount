@@ -1,0 +1,27 @@
+#!/bin/sh
+# initramfs premount script — brings WiFi up before Clevis contacts Tang.
+# Install to: /etc/initramfs-tools/scripts/init-premount/wifi  (chmod +x)
+# Run: update-initramfs -u -k all
+
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in prereqs) prereqs; exit 0;; esac
+
+modprobe cfg80211
+modprobe mac80211
+modprobe iwlwifi
+modprobe iwlmvm
+
+# iwlwifi initialises asynchronously — wait up to 20s for wlan0 to appear
+i=0
+while ! ip link show wlan0 > /dev/null 2>&1; do
+    sleep 1
+    i=$((i+1))
+    [ $i -ge 20 ] && break
+done
+
+ip link set wlan0 up
+sleep 2
+wpa_supplicant -B -i wlan0 -c /etc/initramfs-tools/wpa_supplicant.conf -D nl80211
+sleep 5
+dhclient wlan0
