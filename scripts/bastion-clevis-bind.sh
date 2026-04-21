@@ -22,18 +22,12 @@ echo "Current LUKS slots on $LUKS_DEV:"
 cryptsetup luksDump "$LUKS_DEV" | grep -E "Keyslot|Key Slot" || true
 echo
 
-# Prompt for citadel thumbprint
-echo "Get the citadel thumbprint by running on citadel:"
-echo "  docker exec tang jose jwk thp -i /var/db/tang/*.pub"
-echo
-read -rp "citadel Tang thumbprint: " CITADEL_THP
-
 CITADEL_URL="http://10.0.0.10:1234"
 
-echo
 echo "Binding $LUKS_DEV to $CITADEL_URL ..."
-clevis luks bind -d "$LUKS_DEV" tang \
-    "{\"url\":\"${CITADEL_URL}\",\"thp\":\"${CITADEL_THP}\"}"
+echo "Clevis will fetch ${CITADEL_URL}/adv and prompt for confirmation."
+echo
+clevis luks bind -d "$LUKS_DEV" tang "{\"url\":\"${CITADEL_URL}\"}"
 
 echo
 echo "Verifying binding ..."

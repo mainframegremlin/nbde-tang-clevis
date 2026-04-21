@@ -31,21 +31,16 @@ Look for the `crypto_LUKS` partition. On Rampart this is `/dev/nvme0n1p3`.
 
 ---
 
-## Get Tang Thumbprints
+## Verify Tang Servers Are Reachable
 
-You need the public key thumbprints from both Tang servers before binding.
-
-**Citadel** (run on Citadel):
+Confirm both servers are responding before binding:
 
 ```bash
 curl http://10.0.0.10:1234/adv
-```
-
-**Bastion** (run on Bastion):
-
-```bash
 curl http://10.0.0.20/adv
 ```
+
+Both should return a JSON advertisement. Clevis contacts these endpoints automatically during binding.
 
 ---
 
@@ -54,19 +49,21 @@ curl http://10.0.0.20/adv
 Run the binding script:
 
 ```bash
-sudo bash scripts/Rampart-clevis-bind.sh
+sudo bash scripts/rampart-clevis-bind.sh
 ```
 
-The script prompts for the LUKS device, both Tang thumbprints, performs the 2-of-2 SSS binding,
-rebuilds initramfs, and creates a LUKS header backup.
+The script prompts for the LUKS device path, performs the 2-of-2 SSS binding, rebuilds
+initramfs, and creates a LUKS header backup.
 
 ### Manual binding (equivalent)
 
 ```bash
-sudo clevis luks bind -d /dev/nvme0n1p3 sss '{"t":2,"pins":{"tang":[{"url":"http://10.1.20.114"},{"url":"http://10.1.1.88:1234"}]}}'
+sudo clevis luks bind -d /dev/nvme0n1p3 sss '{"t":2,"pins":{"tang":[{"url":"http://10.0.0.10:1234"},{"url":"http://10.0.0.20"}]}}'
 ```
 
-`"t": 2` means both pins are required. Either server being unreachable causes auto-unlock to fail and fall back to passphrase prompt.
+Clevis fetches `/adv` from each server and prompts for confirmation before proceeding. `"t": 2`
+means both pins are required — either server being unreachable causes auto-unlock to fail and
+fall back to passphrase prompt.
 
 ### Verify
 
@@ -292,4 +289,4 @@ sudo systemctl reboot
 | List clevis bindings | `sudo clevis luks list -d /dev/nvme0n1p3` |
 | Rebuild initramfs | `sudo update-initramfs -u -k all` |
 | Manual NM fix | `sudo killall wpa_supplicant && sudo systemctl restart NetworkManager` |
-| Get Tang thumbprint | `sudo jose jwk thp -i /var/db/tang/*.pub` |
+| Check Tang advertisement | `curl http://10.0.0.10:1234/adv` |

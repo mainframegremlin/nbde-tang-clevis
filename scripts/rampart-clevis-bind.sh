@@ -22,37 +22,20 @@ echo "Current LUKS slots on $LUKS_DEV:"
 cryptsetup luksDump "$LUKS_DEV" | grep -E "Keyslot|Key Slot" || true
 echo
 
-# Thumbprint instructions
-echo "You need thumbprints from both Tang servers."
-echo
-echo "  citadel: run on citadel:"
-echo "    docker exec tang jose jwk thp -i /var/db/tang/*.pub"
-echo
-echo "  bastion: run on bastion:"
-echo "    sudo jose jwk thp -i /var/db/tang/*.pub"
-echo
-
-read -rp "citadel Tang thumbprint (10.0.0.10:1234): " CITADEL_THP
-read -rp "bastion Tang thumbprint (10.0.0.20):    " BASTION_THP
-
 CITADEL_URL="http://10.0.0.10:1234"
 BASTION_URL="http://10.0.0.20"
 
-SSS_CONFIG=$(cat <<EOF
-{
-  "t": 2,
-  "pins": {
-    "tang": [
-      {"url": "${CITADEL_URL}", "thp": "${CITADEL_THP}"},
-      {"url": "${BASTION_URL}", "thp": "${BASTION_THP}"}
-    ]
-  }
-}
-EOF
-)
-
+echo "Verifying Tang servers are reachable ..."
+curl -sf "${CITADEL_URL}/adv" > /dev/null || { echo "Error: citadel tang unreachable at ${CITADEL_URL}"; exit 1; }
+curl -sf "${BASTION_URL}/adv" > /dev/null || { echo "Error: bastion tang unreachable at ${BASTION_URL}"; exit 1; }
+echo "Both Tang servers reachable."
 echo
+
+SSS_CONFIG="{\"t\":2,\"pins\":{\"tang\":[{\"url\":\"${CITADEL_URL}\"},{\"url\":\"${BASTION_URL}\"}]}}"
+
 echo "Binding $LUKS_DEV with 2-of-2 SSS ..."
+echo "Clevis will fetch /adv from each server and prompt for confirmation."
+echo
 clevis luks bind -d "$LUKS_DEV" sss "$SSS_CONFIG"
 
 echo

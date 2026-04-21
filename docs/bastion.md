@@ -35,10 +35,10 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now tangd.socket
 ```
 
-### Retrieve the thumbprint
+### Verify the server is reachable
 
 ```bash
-curl http://10.0.0.10:1234/adv
+curl http://10.0.0.20/adv
 ```
 
 ### Firewall
@@ -69,31 +69,23 @@ lsblk -f
 
 Look for the partition with `crypto_LUKS` type — commonly `/dev/sda3` or `/dev/nvme0n1p3`.
 
-### Get the Citadel thumbprint
-
-On Citadel:
-
-```bash
-docker exec tang jose jwk thp -i /var/db/tang/*.pub
-```
-
 ### Bind with the script
 
 ```bash
-sudo bash scripts/Bastion-clevis-bind.sh
+sudo bash scripts/bastion-clevis-bind.sh
 ```
 
-The script prompts for the LUKS device path and the Citadel Tang thumbprint, performs the
-binding, rebuilds initramfs, and creates a LUKS header backup.
+The script prompts for the LUKS device path, performs the binding, rebuilds initramfs, and
+creates a LUKS header backup.
 
 ### Manual binding (equivalent)
 
 ```bash
-sudo clevis luks bind -d /dev/sda3 tang \
-  '{"url":"http://10.0.0.10:1234","thp":"<Citadel-thumbprint>"}'
+sudo clevis luks bind -d /dev/sda3 tang '{"url":"http://10.0.0.10:1234"}'
 ```
 
-You will be prompted for the existing LUKS passphrase once to add the new key slot.
+Clevis fetches `http://10.0.0.10:1234/adv` and prompts you to confirm before proceeding. You
+will also be prompted for the existing LUKS passphrase once to add the new key slot.
 
 ### Verify the binding
 
@@ -250,6 +242,6 @@ sudo systemctl reboot
 | Check Bastion Tang health | `curl http://10.0.0.20/adv` |
 | List clevis bindings | `sudo clevis luks list -d /dev/sda3` |
 | Rebuild initramfs | `sudo update-initramfs -u -k all` |
-| Get Tang thumbprint | `sudo jose jwk thp -i /var/db/tang/*.pub` |
+| Check Tang advertisement | `curl http://10.0.0.20/adv` |
 | View Tang logs | `journalctl -u tangd.socket -u 'tangd@*' -f` |
 | SSH unlock (fallback) | `ssh root@10.0.0.20 -p 2222` then `cryptroot-unlock` |

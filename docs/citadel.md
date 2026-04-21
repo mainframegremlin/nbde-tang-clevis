@@ -84,10 +84,10 @@ docker pull padhihomelab/tang:latest
 # Then redeploy the stack in Portainer (Pull and redeploy)
 ```
 
-After redeployment, verify the thumbprint hasn't changed:
+After redeployment, verify the advertisement is still being served:
 
 ```bash
 curl http://10.0.0.10:1234/adv
 ```
 
-If the thumbprint changes, all clients must be rebound. See [recovery.md](recovery.md) for key rotation procedure.
+If the keys changed (only possible if the volume was wiped), all clients must be rebound. See [recovery.md](recovery.md) for key rotation procedure.
