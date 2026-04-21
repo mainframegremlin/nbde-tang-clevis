@@ -39,22 +39,6 @@ them in the `tang-keys` volume.
 
 ---
 
-## Retrieving the Tang Thumbprint
-
-Every Tang server has a public key thumbprint. LUKS clients need this thumbprint when binding,
-to verify they're talking to the right server.
-
-Run on Citadel after the stack is deployed:
-
-```bash
-docker exec tang jose jwk thp -i /var/db/tang/*.pub
-```
-
-The output is a short base64url string: record it. You'll need it when running the clevis bind
-scripts on bastion and rampart.
-
----
-
 ## Verifying the Service
 
 ```bash
@@ -76,11 +60,11 @@ is not blocked.
 Allow inbound TCP on port 1234 from your LUKS client IPs. Example using `ufw`:
 
 ```bash
-# Allow bastion
+# Allow Bastion
 sudo ufw allow from 10.0.0.20 to any port 1234 proto tcp
 
-# Allow rampart (if using a static IP or DHCP reservation)
-sudo ufw allow from <rampart-ip> to any port 1234 proto tcp
+# Allow Rampart (if using a static IP or DHCP reservation)
+sudo ufw allow from <Rampart-ip> to any port 1234 proto tcp
 
 sudo ufw reload
 ```
@@ -103,7 +87,7 @@ docker pull padhihomelab/tang:latest
 After redeployment, verify the thumbprint hasn't changed:
 
 ```bash
-docker exec tang jose jwk thp -i /var/db/tang/*.pub
+curl http://10.0.0.10:1234/adv
 ```
 
 If the thumbprint changes, all clients must be rebound. See [recovery.md](recovery.md) for key rotation procedure.
