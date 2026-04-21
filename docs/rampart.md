@@ -1,14 +1,14 @@
-# rampart — LUKS Client (WiFi Initramfs + 2-of-2 SSS)
+# Rampart — LUKS Client (WiFi Initramfs + 2-of-2 SSS)
 
-rampart is an MX Linux laptop with full-disk encryption. It binds to **both** Tang servers
-(citadel and bastion) using a 2-of-2 Shamir's Secret Sharing configuration: at boot, it must
+Rampart is an MX Linux laptop with full-disk encryption. It binds to **both** Tang servers
+(Citadel and Bastion) using a 2-of-2 Shamir's Secret Sharing configuration: at boot, it must
 reach both servers to reconstruct the LUKS key and auto-unlock.
 
-The challenge is that rampart connects over WiFi, and `initramfs-tools` has no built-in WiFi
+The challenge is that Rampart connects over WiFi, and `initramfs-tools` has no built-in WiFi
 support. The kernel, firmware, wpa_supplicant, and a DHCP client all need to be bundled into
 the initramfs image and brought up before Clevis runs. This guide walks through each piece.
 
-**Prereqs:** citadel and bastion Tang servers must be set up and reachable before binding.
+**Prereqs:** Citadel and Bastion Tang servers must be set up and reachable before binding.
 
 ---
 
@@ -27,7 +27,7 @@ sudo apt install clevis clevis-luks clevis-initramfs wpasupplicant
 lsblk -f
 ```
 
-Look for the `crypto_LUKS` partition — on rampart this is `/dev/nvme0n1p3`.
+Look for the `crypto_LUKS` partition. On Rampart this is `/dev/nvme0n1p3`.
 
 ---
 
@@ -35,16 +35,16 @@ Look for the `crypto_LUKS` partition — on rampart this is `/dev/nvme0n1p3`.
 
 You need the public key thumbprints from both Tang servers before binding.
 
-**citadel** (run on citadel):
+**Citadel** (run on Citadel):
 
 ```bash
-docker exec tang jose jwk thp -i /var/db/tang/*.pub
+curl http://10.0.0.10:1234/adv
 ```
 
-**bastion** (run on bastion):
+**Bastion** (run on Bastion):
 
 ```bash
-sudo jose jwk thp -i /var/db/tang/*.pub
+curl http://10.0.0.20/adv
 ```
 
 ---
@@ -54,7 +54,7 @@ sudo jose jwk thp -i /var/db/tang/*.pub
 Run the binding script:
 
 ```bash
-sudo bash scripts/rampart-clevis-bind.sh
+sudo bash scripts/Rampart-clevis-bind.sh
 ```
 
 The script prompts for the LUKS device, both Tang thumbprints, performs the 2-of-2 SSS binding,
@@ -63,19 +63,10 @@ rebuilds initramfs, and creates a LUKS header backup.
 ### Manual binding (equivalent)
 
 ```bash
-sudo clevis luks bind -d /dev/nvme0n1p3 sss '{
-  "t": 2,
-  "pins": {
-    "tang": [
-      {"url": "http://10.0.0.10:1234", "thp": "<citadel-thumbprint>"},
-      {"url": "http://10.0.0.20",    "thp": "<bastion-thumbprint>"}
-    ]
-  }
-}'
+sudo clevis luks bind -d /dev/nvme0n1p3 sss '{"t":2,"pins":{"tang":[{"url":"http://10.1.20.114"},{"url":"http://10.1.1.88:1234"}]}}'
 ```
 
-`"t": 2` means both pins are required — either server being unreachable causes auto-unlock to
-fail and fall back to passphrase prompt.
+`"t": 2` means both pins are required. Either server being unreachable causes auto-unlock to fail and fall back to passphrase prompt.
 
 ### Verify
 
@@ -287,7 +278,7 @@ sudo cryptsetup luksDump /dev/nvme0n1p3 | grep -E "Keyslot|Key Slot"
 # Full boot test (both Tang servers running): reboot → auto-unlocks
 sudo systemctl reboot
 
-# Resilience test: stop one Tang server → rampart should prompt for passphrase
+# Resilience test: stop one Tang server → Rampart should prompt for passphrase
 ```
 
 ---
@@ -296,8 +287,8 @@ sudo systemctl reboot
 
 | Task | Command |
 |---|---|
-| Check citadel Tang | `curl http://10.0.0.10:1234/adv` |
-| Check bastion Tang | `curl http://10.0.0.20/adv` |
+| Check Citadel Tang | `curl http://10.0.0.10:1234/adv` |
+| Check Bastion Tang | `curl http://10.0.0.20/adv` |
 | List clevis bindings | `sudo clevis luks list -d /dev/nvme0n1p3` |
 | Rebuild initramfs | `sudo update-initramfs -u -k all` |
 | Manual NM fix | `sudo killall wpa_supplicant && sudo systemctl restart NetworkManager` |
