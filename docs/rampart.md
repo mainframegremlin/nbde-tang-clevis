@@ -1,4 +1,4 @@
-# Rampart — LUKS Client (WiFi Initramfs + 2-of-2 SSS)
+# Rampart: LUKS Client (WiFi Initramfs + 2-of-2 SSS)
 
 Rampart is an MX Linux laptop with full-disk encryption. It binds to **both** Tang servers
 (Citadel and Bastion) using a 2-of-2 Shamir's Secret Sharing configuration: at boot, it must
