@@ -1,17 +1,17 @@
-# bastion — Tang Server + LUKS Client
+# Bastion — Tang Server + LUKS Client
 
-bastion (Debian 13, `10.0.0.20`) plays two roles:
+Bastion plays two roles:
 
-1. **Tang server** — it serves key material to rampart for its 2-of-2 SSS unlock
-2. **LUKS client** — its own root disk is encrypted and auto-unlocks via citadel's Tang
+1. **Tang server**: it serves key material to Rampart for its 2-of-2 SSS unlock
+2. **LUKS client**: its own root disk is encrypted and auto-unlocks via Citadel's Tang
 
-Because a machine can't depend on itself to boot, bastion binds to citadel Tang only (1-of-1).
-If citadel is unreachable, bastion falls back to Dropbear: a minimal SSH server that runs inside
+Because a machine can't depend on itself to boot, Bastion binds to Citadel Tang only (1-of-1).
+If Citadel is unreachable, Bastion falls back to Dropbear: a minimal SSH server that runs inside
 initramfs, letting you SSH in and type the LUKS passphrase manually before the OS starts.
 
 ---
 
-## Part 1 — Tang Server Setup
+## Part 1: Tang Server Setup
 
 ### Install Tang
 
@@ -38,21 +38,15 @@ sudo systemctl enable --now tangd.socket
 ### Retrieve the thumbprint
 
 ```bash
-sudo jose jwk thp -i /var/db/tang/*.pub
-```
-
-Record this value — rampart needs it when binding. Verify the server is reachable:
-
-```bash
-curl http://10.0.0.20/adv
+curl http://10.0.0.10:1234/adv
 ```
 
 ### Firewall
 
-Allow inbound port 80 TCP from rampart's IP:
+Allow inbound port 80 TCP from Rampart's IP:
 
 ```bash
-sudo ufw allow from <rampart-ip> to any port 80 proto tcp
+sudo ufw allow from <Rampart-ip> to any port 80 proto tcp
 sudo ufw reload
 ```
 
@@ -75,9 +69,9 @@ lsblk -f
 
 Look for the partition with `crypto_LUKS` type — commonly `/dev/sda3` or `/dev/nvme0n1p3`.
 
-### Get the citadel thumbprint
+### Get the Citadel thumbprint
 
-On citadel:
+On Citadel:
 
 ```bash
 docker exec tang jose jwk thp -i /var/db/tang/*.pub
@@ -86,17 +80,17 @@ docker exec tang jose jwk thp -i /var/db/tang/*.pub
 ### Bind with the script
 
 ```bash
-sudo bash scripts/bastion-clevis-bind.sh
+sudo bash scripts/Bastion-clevis-bind.sh
 ```
 
-The script prompts for the LUKS device path and the citadel Tang thumbprint, performs the
+The script prompts for the LUKS device path and the Citadel Tang thumbprint, performs the
 binding, rebuilds initramfs, and creates a LUKS header backup.
 
 ### Manual binding (equivalent)
 
 ```bash
 sudo clevis luks bind -d /dev/sda3 tang \
-  '{"url":"http://10.0.0.10:1234","thp":"<citadel-thumbprint>"}'
+  '{"url":"http://10.0.0.10:1234","thp":"<Citadel-thumbprint>"}'
 ```
 
 You will be prompted for the existing LUKS passphrase once to add the new key slot.
@@ -121,8 +115,8 @@ sudo update-initramfs -u -k all
 ## Part 3 — Dropbear SSH Fallback
 
 Dropbear is a lightweight SSH server that can run inside initramfs — the minimal Linux
-environment active before the root filesystem is mounted. If citadel is unreachable and clevis
-can't auto-unlock, bastion halts at the LUKS prompt. Dropbear lets you SSH in on port 2222,
+environment active before the root filesystem is mounted. If Citadel is unreachable and clevis
+can't auto-unlock, Bastion halts at the LUKS prompt. Dropbear lets you SSH in on port 2222,
 type the passphrase, and finish the boot.
 
 ### Install
@@ -171,7 +165,7 @@ Add or ensure this line is present:
 DEVICE=eno1
 ```
 
-No `IP=` line is needed — UniFi DHCP provides a static lease for bastion's MAC address, so the
+No `IP=` line is needed — UniFi DHCP provides a static lease for Bastion's MAC address, so the
 initramfs gets the correct IP automatically.
 
 ### Rebuild initramfs
@@ -184,7 +178,7 @@ sudo update-initramfs -u
 
 ## Unlocking Manually via Dropbear
 
-After a reboot where citadel is unreachable, bastion waits at the initramfs LUKS prompt.
+After a reboot where Citadel is unreachable, Bastion waits at the initramfs LUKS prompt.
 SSH in from another machine:
 
 ```bash
@@ -206,7 +200,7 @@ Add this to `~/.ssh/config` on your management workstation to avoid host-key con
 the initramfs Dropbear host key and the normal sshd host key:
 
 ```
-Host bastion-unlock
+Host Bastion-unlock
     HostName 10.0.0.20
     User root
     Port 2222
@@ -218,13 +212,13 @@ Host bastion-unlock
 Then unlock with:
 
 ```bash
-ssh bastion-unlock
+ssh Bastion-unlock
 cryptroot-unlock
 ```
 
 > **Note:** `StrictHostKeyChecking no` / `UserKnownHostsFile /dev/null` are safe here because
 > this alias is specifically scoped to port 2222, which only exists during early boot. The
-> normal `bastion` alias at port 22 should keep strict checking enabled.
+> normal `Bastion` alias at port 22 should keep strict checking enabled.
 
 ---
 
@@ -240,10 +234,10 @@ sudo clevis luks list -d /dev/sda3
 # Both key slots active (passphrase + clevis)
 sudo cryptsetup luksDump /dev/sda3 | grep -E "Keyslot|Key Slot"
 
-# Full boot test: reboot with citadel running → should auto-unlock
+# Full boot test: reboot with Citadel running → should auto-unlock
 sudo systemctl reboot
 
-# Fallback test: stop citadel tang, reboot → should expose Dropbear on :2222
+# Fallback test: stop Citadel tang, reboot → should expose Dropbear on :2222
 ```
 
 ---
@@ -252,8 +246,8 @@ sudo systemctl reboot
 
 | Task | Command |
 |---|---|
-| Check citadel Tang health | `curl http://10.0.0.10:1234/adv` |
-| Check bastion Tang health | `curl http://10.0.0.20/adv` |
+| Check Citadel Tang health | `curl http://10.0.0.10:1234/adv` |
+| Check Bastion Tang health | `curl http://10.0.0.20/adv` |
 | List clevis bindings | `sudo clevis luks list -d /dev/sda3` |
 | Rebuild initramfs | `sudo update-initramfs -u -k all` |
 | Get Tang thumbprint | `sudo jose jwk thp -i /var/db/tang/*.pub` |
