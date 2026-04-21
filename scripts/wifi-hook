@@ -1,5 +1,5 @@
 #!/bin/sh
-# initramfs hook — bundles WiFi tooling into the initramfs image.
+# initramfs hook—bundles WiFi tooling into the initramfs image.
 # Install to: /etc/initramfs-tools/hooks/wifi  (chmod +x)
 # Run: update-initramfs -u -k all
 

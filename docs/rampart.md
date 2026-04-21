@@ -62,7 +62,7 @@ sudo clevis luks bind -d /dev/nvme0n1p3 sss '{"t":2,"pins":{"tang":[{"url":"http
 ```
 
 Clevis fetches `/adv` from each server and prompts for confirmation before proceeding. `"t": 2`
-means both pins are required — either server being unreachable causes auto-unlock to fail and
+means both pins are required—either server being unreachable causes auto-unlock to fail and
 fall back to passphrase prompt.
 
 ### Verify
@@ -80,7 +80,7 @@ then baked into the initramfs image. Make all four changes before running `updat
 
 ### 1. wpa_supplicant credentials
 
-Create `/etc/initramfs-tools/wpa_supplicant.conf` with mode `600` (readable only by root —
+Create `/etc/initramfs-tools/wpa_supplicant.conf` with mode `600` (readable only by root—
 this file contains your WiFi password in plaintext):
 
 ```bash
@@ -101,7 +101,7 @@ Replace `YourSSID` and `YourPassword` with your actual WiFi credentials.
 ### 2. Kernel modules
 
 The Intel AX201 WiFi adapter requires `iwlwifi` and `iwlmvm`. These are not included in the
-default `MODULES=most` set — they must be listed explicitly or the interface never appears.
+default `MODULES=most` set—they must be listed explicitly or the interface never appears.
 
 Append to `/etc/initramfs-tools/modules`:
 

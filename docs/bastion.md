@@ -1,4 +1,4 @@
-# Bastion — Tang Server + LUKS Client
+# Bastion: Tang Server + LUKS Client
 
 Bastion plays two roles:
 
@@ -52,7 +52,7 @@ sudo ufw reload
 
 ---
 
-## Part 2 — LUKS Client Setup (Clevis)
+## Part 2: LUKS Client Setup (Clevis)
 
 ### Install packages
 
@@ -67,7 +67,7 @@ sudo apt install clevis clevis-luks clevis-initramfs
 lsblk -f
 ```
 
-Look for the partition with `crypto_LUKS` type — commonly `/dev/sda3` or `/dev/nvme0n1p3`.
+Look for the partition with `crypto_LUKS` type—commonly `/dev/sda3` or `/dev/nvme0n1p3`.
 
 ### Bind with the script
 
@@ -104,9 +104,9 @@ sudo update-initramfs -u -k all
 
 ---
 
-## Part 3 — Dropbear SSH Fallback
+## Part 3: Dropbear SSH Fallback
 
-Dropbear is a lightweight SSH server that can run inside initramfs — the minimal Linux
+Dropbear is a lightweight SSH server that can run inside initramfs—the minimal Linux
 environment active before the root filesystem is mounted. If Citadel is unreachable and clevis
 can't auto-unlock, Bastion halts at the LUKS prompt. Dropbear lets you SSH in on port 2222,
 type the passphrase, and finish the boot.
@@ -157,7 +157,7 @@ Add or ensure this line is present:
 DEVICE=eno1
 ```
 
-No `IP=` line is needed — UniFi DHCP provides a static lease for Bastion's MAC address, so the
+No `IP=` line is needed—UniFi DHCP provides a static lease for Bastion's MAC address, so the
 initramfs gets the correct IP automatically.
 
 ### Rebuild initramfs
@@ -183,7 +183,7 @@ Then unlock:
 cryptroot-unlock
 ```
 
-Enter the LUKS passphrase. Bastion finishes booting and Dropbear exits — normal sshd on port 22
+Enter the LUKS passphrase. Bastion finishes booting and Dropbear exits—normal sshd on port 22
 takes over.
 
 ### Recommended SSH client config

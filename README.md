@@ -88,9 +88,9 @@ will fall back to prompting for the LUKS passphrase.
 
 | Host | IP | Tang URL | LUKS encrypted | Unlock method |
 |---|---|---|---|---|
-| citadel | 10.0.0.10 | `http://10.0.0.10:1234` | — | n/a |
+| citadel | 10.0.0.10 | `http://10.0.0.10:1234` |—| n/a |
 | bastion | 10.0.0.20 | `http://10.0.0.20` | Yes | Clevis → citadel, or Dropbear SSH |
-| rampart | DHCP (WiFi)/10.0.0.30 | — | Yes | Clevis → citadel + bastion (2-of-2 SSS) |
+| rampart | DHCP (WiFi)/10.0.0.30 |—| Yes | Clevis → citadel + bastion (2-of-2 SSS) |
 
 ---
 
@@ -99,17 +99,17 @@ will fall back to prompting for the LUKS passphrase.
 Dependencies flow downward: citadel's Tang must be running before any client can bind to it,
 and bastion's Tang must be running before rampart can bind to it.
 
-1. **[citadel](docs/citadel.md)** — Deploy the Tang container via Portainer
-2. **[bastion](docs/bastion.md)** — Set up bastion's Tang server, then bind it as a LUKS client
-3. **[rampart](docs/rampart.md)** — Configure WiFi initramfs, then bind with 2-of-2 SSS
+1. **[citadel](docs/citadel.md)**—Deploy the Tang container via Portainer
+2. **[bastion](docs/bastion.md)**—Set up bastion's Tang server, then bind it as a LUKS client
+3. **[rampart](docs/rampart.md)**—Configure WiFi initramfs, then bind with 2-of-2 SSS
 
 ---
 
 ## Per-Machine Guides
 
-- [citadel — Tang server (Portainer stack)](docs/citadel.md)
-- [bastion — Tang server + LUKS client (Dropbear SSH unlock)](docs/bastion.md)
-- [rampart — LUKS client (WiFi initramfs + 2-of-2 SSS)](docs/rampart.md)
+- [citadel—Tang server (Portainer stack)](docs/citadel.md)
+- [bastion—Tang server + LUKS client (Dropbear SSH unlock)](docs/bastion.md)
+- [rampart—LUKS client (WiFi initramfs + 2-of-2 SSS)](docs/rampart.md)
 - [Key rotation, header backup & recovery](docs/recovery.md)
 
 ---
