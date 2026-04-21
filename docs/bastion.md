@@ -1,6 +1,6 @@
 # bastion — Tang Server + LUKS Client
 
-bastion (Debian 13, `10.1.20.114`) plays two roles:
+bastion (Debian 13, `10.0.0.20`) plays two roles:
 
 1. **Tang server** — it serves key material to rampart for its 2-of-2 SSS unlock
 2. **LUKS client** — its own root disk is encrypted and auto-unlocks via citadel's Tang
@@ -44,7 +44,7 @@ sudo jose jwk thp -i /var/db/tang/*.pub
 Record this value — rampart needs it when binding. Verify the server is reachable:
 
 ```bash
-curl http://10.1.20.114/adv
+curl http://10.0.0.20/adv
 ```
 
 ### Firewall
@@ -96,7 +96,7 @@ binding, rebuilds initramfs, and creates a LUKS header backup.
 
 ```bash
 sudo clevis luks bind -d /dev/sda3 tang \
-  '{"url":"http://10.1.1.88:1234","thp":"<citadel-thumbprint>"}'
+  '{"url":"http://10.0.0.10:1234","thp":"<citadel-thumbprint>"}'
 ```
 
 You will be prompted for the existing LUKS passphrase once to add the new key slot.
@@ -188,7 +188,7 @@ After a reboot where citadel is unreachable, bastion waits at the initramfs LUKS
 SSH in from another machine:
 
 ```bash
-ssh root@10.1.20.114 -p 2222
+ssh root@10.0.0.20 -p 2222
 ```
 
 Then unlock:
@@ -207,7 +207,7 @@ the initramfs Dropbear host key and the normal sshd host key:
 
 ```
 Host bastion-unlock
-    HostName 10.1.20.114
+    HostName 10.0.0.20
     User root
     Port 2222
     IdentityFile ~/.ssh/id_ed25519
@@ -232,7 +232,7 @@ cryptroot-unlock
 
 ```bash
 # Tang server responding
-curl http://10.1.20.114/adv
+curl http://10.0.0.20/adv
 
 # Clevis binding present
 sudo clevis luks list -d /dev/sda3
@@ -252,10 +252,10 @@ sudo systemctl reboot
 
 | Task | Command |
 |---|---|
-| Check citadel Tang health | `curl http://10.1.1.88:1234/adv` |
-| Check bastion Tang health | `curl http://10.1.20.114/adv` |
+| Check citadel Tang health | `curl http://10.0.0.10:1234/adv` |
+| Check bastion Tang health | `curl http://10.0.0.20/adv` |
 | List clevis bindings | `sudo clevis luks list -d /dev/sda3` |
 | Rebuild initramfs | `sudo update-initramfs -u -k all` |
 | Get Tang thumbprint | `sudo jose jwk thp -i /var/db/tang/*.pub` |
 | View Tang logs | `journalctl -u tangd.socket -u 'tangd@*' -f` |
-| SSH unlock (fallback) | `ssh root@10.1.20.114 -p 2222` then `cryptroot-unlock` |
+| SSH unlock (fallback) | `ssh root@10.0.0.20 -p 2222` then `cryptroot-unlock` |

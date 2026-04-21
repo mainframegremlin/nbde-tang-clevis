@@ -32,11 +32,11 @@ echo "  bastion: run on bastion:"
 echo "    sudo jose jwk thp -i /var/db/tang/*.pub"
 echo
 
-read -rp "citadel Tang thumbprint (10.1.1.88:1234): " CITADEL_THP
-read -rp "bastion Tang thumbprint (10.1.20.114):    " BASTION_THP
+read -rp "citadel Tang thumbprint (10.0.0.10:1234): " CITADEL_THP
+read -rp "bastion Tang thumbprint (10.0.0.20):    " BASTION_THP
 
-CITADEL_URL="http://10.1.1.88:1234"
-BASTION_URL="http://10.1.20.114"
+CITADEL_URL="http://10.0.0.10:1234"
+BASTION_URL="http://10.0.0.20"
 
 SSS_CONFIG=$(cat <<EOF
 {

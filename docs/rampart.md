@@ -67,8 +67,8 @@ sudo clevis luks bind -d /dev/nvme0n1p3 sss '{
   "t": 2,
   "pins": {
     "tang": [
-      {"url": "http://10.1.1.88:1234", "thp": "<citadel-thumbprint>"},
-      {"url": "http://10.1.20.114",    "thp": "<bastion-thumbprint>"}
+      {"url": "http://10.0.0.10:1234", "thp": "<citadel-thumbprint>"},
+      {"url": "http://10.0.0.20",    "thp": "<bastion-thumbprint>"}
     ]
   }
 }'
@@ -275,8 +275,8 @@ control of `wlan0` and connects normally.
 
 ```bash
 # Tang servers reachable
-curl http://10.1.1.88:1234/adv
-curl http://10.1.20.114/adv
+curl http://10.0.0.10:1234/adv
+curl http://10.0.0.20/adv
 
 # Clevis binding present with SSS config
 sudo clevis luks list -d /dev/nvme0n1p3
@@ -296,8 +296,8 @@ sudo systemctl reboot
 
 | Task | Command |
 |---|---|
-| Check citadel Tang | `curl http://10.1.1.88:1234/adv` |
-| Check bastion Tang | `curl http://10.1.20.114/adv` |
+| Check citadel Tang | `curl http://10.0.0.10:1234/adv` |
+| Check bastion Tang | `curl http://10.0.0.20/adv` |
 | List clevis bindings | `sudo clevis luks list -d /dev/nvme0n1p3` |
 | Rebuild initramfs | `sudo update-initramfs -u -k all` |
 | Manual NM fix | `sudo killall wpa_supplicant && sudo systemctl restart NetworkManager` |

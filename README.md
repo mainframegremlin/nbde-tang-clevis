@@ -45,15 +45,15 @@ resilience (fewer servers required).
 
 ```mermaid
 graph TB
-    subgraph LAN["Home Network · 10.1.x.x"]
+    subgraph LAN["Home Network · 10.0.0.x"]
         direction TB
 
-        citadel["citadel · 10.1.1.88
+        citadel["citadel · 10.0.0.10
         ──────────────────
         Tang Server
         Portainer stack · :1234"]
 
-        subgraph bastion_node["bastion · 10.1.20.114"]
+        subgraph bastion_node["bastion · 10.0.0.20"]
             direction TB
             bastion_tang["Tang Server · :80"]
             bastion_luks["LUKS Client
@@ -68,7 +68,7 @@ graph TB
     end
 
     ssh_unlock["Manual unlock
-    ssh root@10.1.20.114 -p 2222
+    ssh root@10.0.0.20 -p 2222
     cryptroot-unlock"]
 
     bastion_luks -- "1-of-1 bind" --> citadel
@@ -97,8 +97,8 @@ will fall back to prompting for the LUKS passphrase.
 
 | Host | IP | Tang URL | LUKS encrypted | Unlock method |
 |---|---|---|---|---|
-| citadel | 10.1.1.88 | `http://10.1.1.88:1234` | — | n/a |
-| bastion | 10.1.20.114 | `http://10.1.20.114` | Yes | Clevis → citadel, or Dropbear SSH |
+| citadel | 10.0.0.10 | `http://10.0.0.10:1234` | — | n/a |
+| bastion | 10.0.0.20 | `http://10.0.0.20` | Yes | Clevis → citadel, or Dropbear SSH |
 | rampart | DHCP (WiFi) | — | Yes | Clevis → citadel + bastion (2-of-2 SSS) |
 
 ---

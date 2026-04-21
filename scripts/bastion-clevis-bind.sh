@@ -28,7 +28,7 @@ echo "  docker exec tang jose jwk thp -i /var/db/tang/*.pub"
 echo
 read -rp "citadel Tang thumbprint: " CITADEL_THP
 
-CITADEL_URL="http://10.1.1.88:1234"
+CITADEL_URL="http://10.0.0.10:1234"
 
 echo
 echo "Binding $LUKS_DEV to $CITADEL_URL ..."

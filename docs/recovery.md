@@ -36,7 +36,7 @@ a password manager that accepts attachments.
 If Tang servers are unreachable and the machine is rebooting, Clevis will fail silently and the
 system will fall back to a LUKS passphrase prompt.
 
-- **bastion:** Dropbear starts on port 2222. SSH in with `ssh root@10.1.20.114 -p 2222`, then
+- **bastion:** Dropbear starts on port 2222. SSH in with `ssh root@10.0.0.20 -p 2222`, then
   run `cryptroot-unlock` and enter the passphrase.
 - **rampart:** A passphrase prompt appears at boot (ensure Plymouth is disabled — see
   [rampart.md](rampart.md)). Type the LUKS passphrase to continue.

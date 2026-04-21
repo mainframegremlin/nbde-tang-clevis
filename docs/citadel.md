@@ -10,7 +10,7 @@ image updates.
 ## Prerequisites
 
 - Docker and Portainer are already installed on citadel
-- citadel is reachable at `10.1.1.88` from all LUKS clients
+- citadel is reachable at `10.0.0.10` from all LUKS clients
 - Port `1234` is open on citadel's firewall for inbound TCP from LUKS client IPs
 
 ---
@@ -62,7 +62,7 @@ scripts on bastion and rampart.
 curl http://localhost:1234/adv
 
 # From another machine on the LAN
-curl http://10.1.1.88:1234/adv
+curl http://10.0.0.10:1234/adv
 ```
 
 A successful response is a JSON document containing the Tang server's advertisement (public key
@@ -77,7 +77,7 @@ Allow inbound TCP on port 1234 from your LUKS client IPs. Example using `ufw`:
 
 ```bash
 # Allow bastion
-sudo ufw allow from 10.1.20.114 to any port 1234 proto tcp
+sudo ufw allow from 10.0.0.20 to any port 1234 proto tcp
 
 # Allow rampart (if using a static IP or DHCP reservation)
 sudo ufw allow from <rampart-ip> to any port 1234 proto tcp
