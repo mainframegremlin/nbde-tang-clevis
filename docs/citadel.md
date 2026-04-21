@@ -1,6 +1,6 @@
-# citadel — Tang Server (Portainer Stack)
+# Citadel: Tang Server
 
-citadel is a NAS running Docker and Portainer. It hosts the Tang key server that all LUKS
+Citadel is a server running Docker and Portainer. It hosts the Tang key server that all LUKS
 clients on the network bind to. The Tang service runs as a container managed by a Portainer
 stack, with keys stored in a named Docker volume so they persist across container restarts and
 image updates.
@@ -9,9 +9,9 @@ image updates.
 
 ## Prerequisites
 
-- Docker and Portainer are already installed on citadel
-- citadel is reachable at `10.0.0.10` from all LUKS clients
-- Port `1234` is open on citadel's firewall for inbound TCP from LUKS client IPs
+- Docker and Portainer are already installed on Citadel
+- Citadel is reachable at `10.0.0.10` from all LUKS clients
+- Port `1234` is open on Citadel's firewall for inbound TCP from LUKS client IPs
 
 ---
 
@@ -42,15 +42,15 @@ them in the `tang-keys` volume.
 ## Retrieving the Tang Thumbprint
 
 Every Tang server has a public key thumbprint. LUKS clients need this thumbprint when binding,
-to verify they're talking to the right server (not a rogue Tang).
+to verify they're talking to the right server.
 
-Run this on citadel after the stack is deployed:
+Run on Citadel after the stack is deployed:
 
 ```bash
 docker exec tang jose jwk thp -i /var/db/tang/*.pub
 ```
 
-The output is a short base64url string — record it. You'll need it when running the clevis bind
+The output is a short base64url string: record it. You'll need it when running the clevis bind
 scripts on bastion and rampart.
 
 ---
@@ -58,7 +58,7 @@ scripts on bastion and rampart.
 ## Verifying the Service
 
 ```bash
-# From citadel itself
+# From Citadel itself
 curl http://localhost:1234/adv
 
 # From another machine on the LAN
@@ -85,7 +85,7 @@ sudo ufw allow from <rampart-ip> to any port 1234 proto tcp
 sudo ufw reload
 ```
 
-If citadel uses a hardware firewall or router ACLs instead of ufw, apply the equivalent rules
+If Citadel uses a hardware firewall or router ACLs instead of ufw, apply the equivalent rules
 there.
 
 ---
@@ -93,7 +93,7 @@ there.
 ## Updating the Tang Image
 
 Because keys live in the `tang-keys` volume (not in the container), pulling a new image and
-redeploying the stack is safe — keys are preserved.
+redeploying the stack is safe. The keys are preserved.
 
 ```bash
 docker pull padhihomelab/tang:latest
@@ -106,5 +106,4 @@ After redeployment, verify the thumbprint hasn't changed:
 docker exec tang jose jwk thp -i /var/db/tang/*.pub
 ```
 
-If the thumbprint changes (it shouldn't on a simple image update, only if the volume was wiped),
-all clients must be rebound. See [recovery.md](recovery.md) for key rotation procedure.
+If the thumbprint changes, all clients must be rebound. See [recovery.md](recovery.md) for key rotation procedure.
