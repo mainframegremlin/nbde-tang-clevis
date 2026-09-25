@@ -32,7 +32,7 @@ mathematical protocol (JOSE/ECIES) so that:
 
 **Clevis** is the client-side counterpart. During setup, it binds a LUKS key slot to a Tang
 server's public key. At boot, Clevis contacts Tang, performs the key exchange, reconstructs the
-LUKS decryption key, and unlocks the disk; all before the OS starts.
+LUKS decryption key, and unlocks the disk (as long as networking is available within initramfs).
 
 **Shamir's Secret Sharing (SSS)** lets you require *multiple* Tang servers to cooperate for
 unlock. With a 2-of-2 configuration, both servers must be reachable. With 2-of-3, any two
